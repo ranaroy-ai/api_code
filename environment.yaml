@@ -1,0 +1,8 @@
+name: fastapi-env
+dependencies:
+  - python=3.9
+  - pip
+  - pip:
+      - fastapi
+      - uvicorn
+      - azureml-sdk
