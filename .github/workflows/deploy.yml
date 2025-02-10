@@ -1,4 +1,4 @@
-name: Deploy FastAPI to Azure ML
+name: Deploy FastAPI to Azure ML on AKS
 
 on:
   push:
@@ -13,17 +13,19 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v3
+    - name: Set up Conda environment
+      run: |
+        conda env create -f environment.yaml || conda env update -f environment.yaml
+
+    - name: Login to Azure
+      uses: azure/login@v1
       with:
-        python-version: "3.9"
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Install dependencies
-      run: pip install -r requirements.txt
-
-    - name: Deploy to Azure ML
+    - name: Deploy FastAPI to Azure ML on AKS
       env:
         AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
         AZURE_WORKSPACE_NAME: ${{ secrets.AZURE_WORKSPACE_NAME }}
-      run: python deploy.py
+      run: |
+        conda run -n fastapi-env python deploy.py
