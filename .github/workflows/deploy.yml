@@ -28,7 +28,7 @@ jobs:
           az configure --defaults group=${{ secrets.AZURE_RESOURCE_GROUP }} workspace=${{ secrets.AZURE_WORKSPACE_NAME }}
 
       - name: Deploy Endpoint
-        run: az ml online-endpoint create --name fastapi-ml-endpoint --file endpoints.yaml || echo "Endpoint already exists"
+        run: az ml online-endpoint create --name fastapi-ml-endpoint --file endpoints.yml || echo "Endpoint already exists"
 
       - name: Deploy Service
-        run: az ml online-deployment create --name fastapi-ml-deployment --endpoint fastapi-ml-endpoint --file deployment.yaml --all-traffic
+        run: az ml online-deployment create --name fastapi-ml-deployment --endpoint fastapi-ml-endpoint --file deployment.yml --all-traffic
