@@ -1,0 +1,14 @@
+$schema: https://azuremlschemas.azureedge.net/latest/managedOnlineDeployment.schema.json
+name: fastapi-ml-deployment
+endpoint_name: fastapi-ml-endpoint
+model: null  # No separate model; it's loaded inside FastAPI
+code_configuration:
+  code: .  # Points to the FastAPI code directory
+  scoring_script: score.py  # FastAPI entry file
+environment:
+  image: mcr.microsoft.com/azureml/curated/minimal-ubuntu20.04-py38:latest
+  conda_file: environment.yaml  # Specifies dependencies
+resources:
+  instance_type: Standard_DS3_v2  # Defines compute size
+  max_instances: 2  # Autoscale between 1-2 instances
+  min_instances: 1
