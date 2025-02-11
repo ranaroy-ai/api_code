@@ -29,16 +29,25 @@ jobs:
 
       - name: Check if Endpoint Exists
         id: check-endpoint
+        continue-on-error: true  # Prevents failure if endpoint doesn't exist
         run: |
-          if az ml online-endpoint show --name fastapi-ml-endpoint --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --workspace-name ${{ secrets.AZURE_WORKSPACE_NAME }}; then
+          if az ml online-endpoint show --name fastapi-ml-endpoint --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --workspace-name ${{ secrets.AZURE_WORKSPACE_NAME }} >/dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_ENV
+            echo "Endpoint 'fastapi-ml-endpoint' already exists." >> $GITHUB_STEP_SUMMARY
           else
             echo "exists=false" >> $GITHUB_ENV
+            echo "Endpoint 'fastapi-ml-endpoint' does not exist. It will be created." >> $GITHUB_STEP_SUMMARY
           fi
-          
-      - name: Deploy Endpoint (Only if it doesn't exist)
+
+      - name: Deploy Endpoint (Only if it doesn’t exist)
         if: env.exists == 'false'
-        run: az ml online-endpoint create --name fastapi-ml-endpoint --file endpoints.yml
+        run: |
+          echo "Creating new endpoint: fastapi-ml-endpoint"
+          az ml online-endpoint create --name fastapi-ml-endpoint --file endpoints.yml
+      
+      - name: Log if Endpoint Exists
+        if: env.exists == 'true'
+        run: echo "Endpoint 'fastapi-ml-endpoint' already exists. No need to create it."
         
       - name: Deploy or Update Service
         run: |
