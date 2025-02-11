@@ -1,31 +1,38 @@
-name: Deploy FastAPI to Azure ML on AKS
+name: Deploy FastAPI to Azure ML Managed Endpoint
 
 on:
   push:
     branches:
-      - main
+      - main  # Runs when code is pushed to main branch
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Use Ubuntu as the GitHub Actions runner
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4  # Pulls the latest code from GitHub
 
-    - name: Set up Conda environment
-      run: |
-        conda env create -f environment.yaml || conda env update -f environment.yaml
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'  # Ensures correct Python version
 
-    - name: Login to Azure
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Install Azure CLI and ML extension
+        run: |
+          pip install azure-ai-ml  # Install Azure ML CLI tools
+          az login --service-principal --username ${{ secrets.AZURE_CLIENT_ID }} \
+            --password ${{ secrets.AZURE_CLIENT_SECRET }} \
+            --tenant ${{ secrets.AZURE_TENANT_ID }}
+          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          az configure --defaults group=${{ secrets.AZURE_RESOURCE_GROUP }} workspace=${{ secrets.AZURE_WORKSPACE_NAME }}
 
-    - name: Deploy FastAPI to Azure ML on AKS
-      env:
-        AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
-        AZURE_WORKSPACE_NAME: ${{ secrets.AZURE_WORKSPACE_NAME }}
-      run: |
-        conda run -n fastapi-env python deploy.py
+      - name: Deploy Azure ML Managed Online Endpoint
+        run: |
+          az ml online-endpoint create --name fastapi-ml-endpoint --file endpoints.yaml || echo "Endpoint already exists"
+
+      - name: Deploy FastAPI service
+        run: |
+          az ml online-deployment create --name fastapi-ml-deployment \
+            --endpoint fastapi-ml-endpoint \
+            --file deployment.yaml --all-traffic
