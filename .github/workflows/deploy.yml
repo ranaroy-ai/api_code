@@ -21,11 +21,20 @@ jobs:
       - name: Install Azure CLI and ML extension
         run: |
           pip install azure-ai-ml  # Install Azure ML CLI tools
-          az login --service-principal --username ${{ secrets.AZURE_CLIENT_ID }} \
-            --password ${{ secrets.AZURE_CLIENT_SECRET }} \
-            --tenant ${{ secrets.AZURE_TENANT_ID }}
-          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          az configure --defaults group=${{ secrets.AZURE_RESOURCE_GROUP }} workspace=${{ secrets.AZURE_WORKSPACE_NAME }}
+          echo '${{ secrets.AZURE_CREDENTIAL }}' > azure_config.json
+          AZURE_CLIENT_ID=$(jq -r '.clientId' azure_config.json)
+          AZURE_CLIENT_SECRET=$(jq -r '.clientSecret' azure_config.json)
+          AZURE_TENANT_ID=$(jq -r '.tenantId' azure_config.json)
+          AZURE_SUBSCRIPTION_ID=$(jq -r '.subscriptionId' azure_config.json)
+          AZURE_RESOURCE_GROUP=$(jq -r '.resourceGroup' azure_config.json)
+          AZURE_WORKSPACE_NAME=$(jq -r '.workspaceName' azure_config.json)
+
+          az login --service-principal --username "$AZURE_CLIENT_ID" \
+            --password "$AZURE_CLIENT_SECRET" \
+            --tenant "$AZURE_TENANT_ID"
+
+          az account set --subscription "$AZURE_SUBSCRIPTION_ID"
+          az configure --defaults group="$AZURE_RESOURCE_GROUP" workspace="$AZURE_WORKSPACE_NAME"
 
       - name: Deploy Azure ML Managed Online Endpoint
         run: |
