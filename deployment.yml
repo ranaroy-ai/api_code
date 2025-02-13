@@ -10,9 +10,8 @@ environment:
   image: mcr.microsoft.com/azureml/curated/minimal-ubuntu20.04-py38:latest
   conda_file: environment.yaml  # Specifies dependencies
   
-resources:
-  compute:
-    instance_type: Standard_DS3_v2
-  autoscaling:
-    min_instances: 1
-    max_instances: 2
+instance_type: Standard_DS3_v2  # Move it here
+
+autoscaling:
+  min_instances: 1
+  max_instances: 2
