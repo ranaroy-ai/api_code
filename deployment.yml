@@ -12,7 +12,4 @@ environment:
   
 instance_type: Standard_DS3_v2  # Move it here
 
-scale_settings:
-  type: "automatic"
-  min_instances: 1
-  max_instances: 2
+instance_count: 3
