@@ -1,6 +1,6 @@
 name: fastapi-env
 dependencies:
-  - python=3.11
+  - python=3.8
   - pip
   - pip:
       - fastapi
