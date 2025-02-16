@@ -7,6 +7,7 @@ code_configuration:
   scoring_script: score.py  # FastAPI entry file
   
 environment:
+  image: mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04
   conda_file: environment.yaml  # Specifies dependencies
   
 instance_type: Standard_DS3_v2  # Move it here
