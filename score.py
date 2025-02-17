@@ -1,12 +1,11 @@
-import uvicorn
+import logging
 from fastapi import FastAPI
 
 app = FastAPI()
 
+def init():
+    logging.info("Service initialized.")
 
-@app.post("/predict")
-def predict(data: dict):
-    return {"prediction": "some result"}
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=5001)
+@app.get("/")
+def run():
+    return {"message": "Hello from FastAPI!"}
