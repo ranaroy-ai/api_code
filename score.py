@@ -9,4 +9,4 @@ def init():
 @app.get("/")
 def run():
     return {"message": "Hello from FastAPI!"}
-#
+
